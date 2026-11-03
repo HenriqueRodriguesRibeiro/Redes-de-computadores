@@ -1,0 +1,16 @@
+# binários compilados
+bin/
+
+# arquivos de teste gerados
+testfiles/
+serverfiles/*
+!serverfiles/.gitkeep
+
+# resultados e gráficos gerados pelos experimentos
+data/*
+!data/.gitkeep
+
+# temporários
+*.o
+*.bin
+*.tmp
