@@ -5,6 +5,8 @@ Requer: pandas, matplotlib, numpy, scipy"""
 import sys
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")  # backend sem display (roda em VM/container headless)
 import matplotlib.pyplot as plt
 from scipy import stats
 
@@ -51,7 +53,11 @@ def main(csv_path):
     grupos, rotulos = [], []
     for (tec, oper), g in ok.groupby(["tecnologia", "operacao"]):
         grupos.append(g["tempo_s"].values); rotulos.append(f"{tec}-{oper}")
-    ax.boxplot(grupos, labels=rotulos)
+    # matplotlib >=3.9 renomeou 'labels' para 'tick_labels'; cobrir ambas as versoes
+    try:
+        ax.boxplot(grupos, tick_labels=rotulos)
+    except TypeError:
+        ax.boxplot(grupos, labels=rotulos)
     ax.set_ylabel("Tempo de resposta (s)"); ax.set_title("Distribuicao do tempo")
     plt.xticks(rotation=30)
     fig.savefig("data/boxplot_tempo.png", dpi=120, bbox_inches="tight")
