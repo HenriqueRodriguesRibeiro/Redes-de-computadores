@@ -151,19 +151,50 @@ def ncmd(node, cmd, shell=False, ignore_erro=False, wait=True):
         raise
 
 
+def ip_na_rede(node, prefixo):
+    """Retorna o IPv4 do no cujo endereco comeca por 'prefixo' (ex.: '10.0.1.')."""
+    out = node.cmd("ip -4 -o addr show")
+    for linha in out.splitlines():
+        campos = linha.split()
+        for i, c in enumerate(campos):
+            if c == "inet" and i + 1 < len(campos):
+                addr = campos[i + 1].split("/")[0]
+                if addr.startswith(prefixo):
+                    return addr
+    return None
+
+
 def rotas_estaticas(nodes):
-    """Garante rotas entre as 3 sub-redes via os roteadores do nucleo."""
+    """Monta as rotas entre as 3 sub-redes descobrindo os IPs reais.
+
+    Topologia:
+      servidor(10.0.0.x) -- acessoA -- R1 == nucleo(10.0.1.x) == R2 -- acessoB -- cliente(10.0.3.x)
+    """
     servidor, cliente = nodes["servidor"], nodes["cliente"]
     r1, r2 = nodes["r1"], nodes["r2"]
-    # servidor -> rede do cliente via R1 (acessoA)
-    ncmd(servidor, "ip route add 10.0.3.0/24 via 10.0.0.2", ignore_erro=True)
-    # cliente -> rede do servidor via R2 (acessoB)
-    ncmd(cliente, "ip route add 10.0.0.0/24 via 10.0.3.1", ignore_erro=True)
-    # habilita forwarding e rotas inter-nucleo nos roteadores
+
+    # IPs reais de cada interface relevante
+    r1_acessoA = ip_na_rede(r1, "10.0.0.")   # R1 na rede do servidor
+    r1_nucleo = ip_na_rede(r1, "10.0.1.")    # R1 no nucleo
+    r2_nucleo = ip_na_rede(r2, "10.0.1.")    # R2 no nucleo
+    r2_acessoB = ip_na_rede(r2, "10.0.3.")   # R2 na rede do cliente
+
+    print(f"[rotas] R1: acessoA={r1_acessoA} nucleo={r1_nucleo} | "
+          f"R2: nucleo={r2_nucleo} acessoB={r2_acessoB}")
+
+    # habilita encaminhamento IP nos roteadores do nucleo
     for r in (r1, r2):
         ncmd(r, "sysctl -w net.ipv4.ip_forward=1", ignore_erro=True)
-    ncmd(r1, "ip route add 10.0.3.0/24 via 10.0.1.2", ignore_erro=True)
-    ncmd(r2, "ip route add 10.0.0.0/24 via 10.0.1.1", ignore_erro=True)
+
+    # servidor -> rede do cliente, saindo por R1 (gateway na propria rede de acesso)
+    ncmd(servidor, f"ip route replace 10.0.3.0/24 via {r1_acessoA}", ignore_erro=True)
+    # cliente -> rede do servidor, saindo por R2
+    ncmd(cliente, f"ip route replace 10.0.0.0/24 via {r2_acessoB}", ignore_erro=True)
+
+    # R1 -> rede do cliente, atravessando o nucleo ate R2
+    ncmd(r1, f"ip route replace 10.0.3.0/24 via {r2_nucleo}", ignore_erro=True)
+    # R2 -> rede do servidor, atravessando o nucleo ate R1
+    ncmd(r2, f"ip route replace 10.0.0.0/24 via {r1_nucleo}", ignore_erro=True)
 
 
 def ip_do_no(node, prefixo):
@@ -176,25 +207,53 @@ def ip_do_no(node, prefixo):
     return None
 
 
+def tem_binario(node, nome):
+    """True se o binario 'nome' existe no PATH do no."""
+    try:
+        out = node.cmd(f"sh -c 'command -v {nome} || true'", shell=True)
+        return bool(out.strip())
+    except Exception:
+        return False
+
+
 def validar_rede(nodes):
-    """Executa ping, traceroute e iperf entre cliente e servidor."""
+    """Executa ping, traceroute e iperf entre cliente e servidor.
+
+    traceroute/iperf podem nao estar instalados nos nos; nesse caso usamos
+    alternativas (tracepath) ou avisamos. Os nos compartilham o filesystem do
+    container, entao 'apt install traceroute iperf' no container resolve.
+    """
     servidor, cliente = nodes["servidor"], nodes["cliente"]
-    ip_srv = ip_do_no(servidor, "10.0.0") or IP_SERVIDOR
+    ip_srv = ip_na_rede(servidor, "10.0.0.") or IP_SERVIDOR
     print(f"\n=== Validacao de rede (servidor={ip_srv}) ===")
 
     print("\n--- ping -c 5 (RTT fim-a-fim) ---")
     print(ncmd(cliente, f"ping -c 5 {ip_srv}", ignore_erro=True))
 
     print("\n--- traceroute (RTT por salto) ---")
-    print(ncmd(cliente, f"traceroute -n {ip_srv}", ignore_erro=True))
+    if tem_binario(cliente, "traceroute"):
+        print(ncmd(cliente, f"traceroute -n {ip_srv}", ignore_erro=True))
+    elif tem_binario(cliente, "tracepath"):
+        print(ncmd(cliente, f"tracepath -n {ip_srv}", ignore_erro=True))
+    else:
+        print("  (traceroute/tracepath ausentes. Instale no container: "
+              "'sudo docker exec core apt-get install -y traceroute')")
 
     print("\n--- iperf (vazao do gargalo) ---")
-    ncmd(servidor, "pkill -f 'iperf -s'", shell=True, ignore_erro=True)
-    ncmd(servidor, "iperf -s > /tmp/iperf_srv.log 2>&1 &",
-         shell=True, ignore_erro=True, wait=False)
-    time.sleep(1)
-    print(ncmd(cliente, f"iperf -c {ip_srv} -t 5", ignore_erro=True))
-    ncmd(servidor, "pkill -f 'iperf -s'", shell=True, ignore_erro=True)
+    iperf = "iperf" if tem_binario(cliente, "iperf") else (
+        "iperf3" if tem_binario(cliente, "iperf3") else None)
+    if iperf:
+        ncmd(servidor, f"pkill -f '{iperf} -s'", shell=True, ignore_erro=True)
+        ncmd(servidor, f"{iperf} -s > /tmp/iperf_srv.log 2>&1 &",
+             shell=True, ignore_erro=True, wait=False)
+        time.sleep(1)
+        print(ncmd(cliente, f"{iperf} -c {ip_srv} -t 5", ignore_erro=True))
+        ncmd(servidor, f"pkill -f '{iperf} -s'", shell=True, ignore_erro=True)
+    else:
+        print("  (iperf ausente. Instale no container: "
+              "'sudo docker exec core apt-get install -y iperf')")
+        print("  Alternativa: a vazao tambem e medida pelo proprio cliente do "
+              "trabalho (coluna vazao_mbps no CSV do experimento).")
 
 
 def rodar_experimento(nodes, tech, n):
