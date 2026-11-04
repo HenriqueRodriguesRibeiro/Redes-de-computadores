@@ -37,6 +37,7 @@ import time
 from core.emulator.coreemu import CoreEmu
 from core.emulator.data import IpPrefixes, LinkOptions
 from core.emulator.enumerations import EventTypes
+from core.errors import CoreCommandError
 from core.nodes.base import CoreNode
 from core.nodes.network import SwitchNode
 
@@ -129,19 +130,40 @@ def configurar_gargalo(session, nodes, core_link, tech):
           f"{cfg['bandwidth'] // 1_000_000} Mbps / {cfg['delay_us'] // 1000} ms (loss=0)")
 
 
+def ncmd(node, cmd, shell=False, ignore_erro=False, wait=True):
+    """Executa comando num no, com suporte a shell e a erros esperados.
+
+    No CORE 9.x, node.cmd() NAO usa shell por padrao, entao operadores como
+    &&, ||, |, >, & exigem shell=True. Alem disso, comandos como 'ip route add'
+    de uma rota que ja existe retornam status != 0 e levantam CoreCommandError;
+    ignore_erro=True captura e ignora essas falhas esperadas. Para processos
+    em background use wait=False.
+    """
+    try:
+        try:
+            return node.cmd(cmd, wait=wait, shell=shell)
+        except TypeError:
+            # versoes que nao aceitam 'wait'
+            return node.cmd(cmd, shell=shell)
+    except CoreCommandError as e:
+        if ignore_erro:
+            return str(e)
+        raise
+
+
 def rotas_estaticas(nodes):
     """Garante rotas entre as 3 sub-redes via os roteadores do nucleo."""
     servidor, cliente = nodes["servidor"], nodes["cliente"]
     r1, r2 = nodes["r1"], nodes["r2"]
     # servidor -> rede do cliente via R1 (acessoA)
-    servidor.cmd("ip route add 10.0.3.0/24 via 10.0.0.2 || true")
+    ncmd(servidor, "ip route add 10.0.3.0/24 via 10.0.0.2", ignore_erro=True)
     # cliente -> rede do servidor via R2 (acessoB)
-    cliente.cmd("ip route add 10.0.0.0/24 via 10.0.3.1 || true")
+    ncmd(cliente, "ip route add 10.0.0.0/24 via 10.0.3.1", ignore_erro=True)
     # habilita forwarding e rotas inter-nucleo nos roteadores
     for r in (r1, r2):
-        r.cmd("sysctl -w net.ipv4.ip_forward=1 || true")
-    r1.cmd("ip route add 10.0.3.0/24 via 10.0.1.2 || true")
-    r2.cmd("ip route add 10.0.0.0/24 via 10.0.1.1 || true")
+        ncmd(r, "sysctl -w net.ipv4.ip_forward=1", ignore_erro=True)
+    ncmd(r1, "ip route add 10.0.3.0/24 via 10.0.1.2", ignore_erro=True)
+    ncmd(r2, "ip route add 10.0.0.0/24 via 10.0.1.1", ignore_erro=True)
 
 
 def ip_do_no(node, prefixo):
@@ -161,17 +183,18 @@ def validar_rede(nodes):
     print(f"\n=== Validacao de rede (servidor={ip_srv}) ===")
 
     print("\n--- ping -c 5 (RTT fim-a-fim) ---")
-    print(cliente.cmd(f"ping -c 5 {ip_srv}"))
+    print(ncmd(cliente, f"ping -c 5 {ip_srv}", ignore_erro=True))
 
     print("\n--- traceroute (RTT por salto) ---")
-    print(cliente.cmd(f"traceroute -n {ip_srv} || tracepath -n {ip_srv} || true"))
+    print(ncmd(cliente, f"traceroute -n {ip_srv}", ignore_erro=True))
 
     print("\n--- iperf (vazao do gargalo) ---")
-    servidor.cmd("pkill -f 'iperf -s' || true")
-    servidor.cmd("nohup iperf -s >/tmp/iperf_srv.log 2>&1 &")
+    ncmd(servidor, "pkill -f 'iperf -s'", shell=True, ignore_erro=True)
+    ncmd(servidor, "iperf -s > /tmp/iperf_srv.log 2>&1 &",
+         shell=True, ignore_erro=True, wait=False)
     time.sleep(1)
-    print(cliente.cmd(f"iperf -c {ip_srv} -t 5 || true"))
-    servidor.cmd("pkill -f 'iperf -s' || true")
+    print(ncmd(cliente, f"iperf -c {ip_srv} -t 5", ignore_erro=True))
+    ncmd(servidor, "pkill -f 'iperf -s'", shell=True, ignore_erro=True)
 
 
 def rodar_experimento(nodes, tech, n):
@@ -182,21 +205,23 @@ def rodar_experimento(nodes, tech, n):
     print(f"\n=== Experimento | tech={tech} | n={n} | servidor={ip_srv} ===")
 
     # compila (idempotente) e gera arquivos de teste
-    servidor.cmd(f"cd {PROJ} && make")
-    cliente.cmd(f"cd {PROJ} && make")
-    cliente.cmd(f"cd {PROJ} && ./scripts/gen_files.sh testfiles")
+    ncmd(servidor, f"cd {PROJ} && make", shell=True, ignore_erro=True)
+    ncmd(cliente, f"cd {PROJ} && make", shell=True, ignore_erro=True)
+    ncmd(cliente, f"cd {PROJ} && ./scripts/gen_files.sh testfiles",
+         shell=True, ignore_erro=True)
 
     # sobe o servidor em background no no servidor
-    servidor.cmd("pkill -f 'bin/server' || true")
-    servidor.cmd(f"cd {PROJ} && nohup ./bin/server {PORT} serverfiles "
-                 f">/tmp/server.log 2>&1 &")
+    ncmd(servidor, "pkill -f 'bin/server'", shell=True, ignore_erro=True)
+    ncmd(servidor, f"cd {PROJ} && nohup ./bin/server {PORT} serverfiles "
+                   f"> /tmp/server.log 2>&1 &",
+         shell=True, ignore_erro=True, wait=False)
     time.sleep(1)
 
     # roda o script de experimento a partir do no cliente
-    cmd = (f"cd {PROJ} && ./scripts/run_experiment.sh {ip_srv} {PORT} {tech} {n}")
-    print(cliente.cmd(cmd))
+    cmd = f"cd {PROJ} && ./scripts/run_experiment.sh {ip_srv} {PORT} {tech} {n}"
+    print(ncmd(cliente, cmd, shell=True, ignore_erro=True))
 
-    servidor.cmd("pkill -f 'bin/server' || true")
+    ncmd(servidor, "pkill -f 'bin/server'", shell=True, ignore_erro=True)
     print(f"\n[ok] CSV acumulado em {PROJ}/data/resultados.csv")
 
 
