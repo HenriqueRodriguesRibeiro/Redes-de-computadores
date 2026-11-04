@@ -295,11 +295,20 @@ def rodar_experimento(session, nodes, tech, n):
 
     print(f"\n=== Experimento | tech={tech} | n={n} | servidor={ip_srv} ===")
 
-    # compila (idempotente) e gera arquivos de teste
+    # compila (idempotente)
     ncmd(servidor, f"cd {PROJ} && make", shell=True, ignore_erro=True)
     ncmd(cliente, f"cd {PROJ} && make", shell=True, ignore_erro=True)
-    print("[gen] gerando arquivos de teste (100 KB e 10 MB)...")
+
+    # gera arquivos de teste no CLIENTE (origem dos PUTs), em testfiles/
+    print("[gen] gerando arquivos de teste no cliente (100 KB e 10 MB)...")
     ncmd(cliente, f"cd {PROJ} && ./scripts/gen_files.sh testfiles",
+         shell=True, ignore_erro=True)
+
+    # IMPORTANTE: o GET baixa arquivos que precisam EXISTIR no servidor.
+    # O servidor serve a partir de serverfiles/, entao populamos esse diretorio
+    # com os mesmos arquivos de teste (gerados diretamente no servidor).
+    print("[gen] populando serverfiles/ no servidor (para os GETs)...")
+    ncmd(servidor, f"cd {PROJ} && ./scripts/gen_files.sh serverfiles",
          shell=True, ignore_erro=True)
     print("[gen] ok.")
 
