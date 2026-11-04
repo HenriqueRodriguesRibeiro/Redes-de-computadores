@@ -23,11 +23,16 @@ for f in "${FILES[@]}"; do
           --csv "$CSV" --tag "GET;${TAG};cli=${k}" &
       done
       wait
+      # limpa GETs temporarios pra nao acumular disco
+      rm -f /tmp/get_*.bin 2>/dev/null
       for ((k=1; k<=c; k++)); do
         $CLIENT "$SERVER_IP" "$PORT" PUT "$TESTDIR/$f" "put_${k}_${f}" \
           --csv "$CSV" --tag "PUT;${TAG};cli=${k}" &
       done
       wait
+      # limpa PUTs no servidor pra nao acumular disco
+      rm -f put_*_*.bin 2>/dev/null
+      rm -f serverfiles/put_*_*.bin 2>/dev/null
     done
     echo "  -> concluido: arquivo=$f concorrencia=$c"
   done
