@@ -256,18 +256,52 @@ def validar_rede(nodes):
               "trabalho (coluna vazao_mbps no CSV do experimento).")
 
 
-def rodar_experimento(nodes, tech, n):
-    """Sobe o servidor e roda o grid de experimentos do run_experiment.sh."""
+def _vcmd_prefix(session, node):
+    """Monta o prefixo 'vcmd -c <ctrl-path> --' para executar no namespace do no.
+
+    No CORE 9.x o diretorio de controle do no fica em
+    <session_dir>/<node_name> e e consumido pelo vcmd.
+    """
+    base = (getattr(session, "directory", None)
+            or getattr(session, "session_dir", None)
+            or f"/tmp/pycore.{session.id}")
+    base = str(base)
+    return ["vcmd", "-c", os.path.join(base, node.name), "--"]
+
+
+def _stream(args):
+    """Executa 'args' transmitindo stdout/stderr em tempo real para a tela."""
+    import subprocess
+    p = subprocess.Popen(
+        args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        text=True, bufsize=1,
+    )
+    for linha in iter(p.stdout.readline, ""):
+        sys.stdout.write(linha)
+        sys.stdout.flush()
+    p.stdout.close()
+    return p.wait()
+
+
+def rodar_experimento(session, nodes, tech, n):
+    """Sobe o servidor e roda o grid de experimentos com saida EM TEMPO REAL.
+
+    A saida do run_experiment.sh e transmitida ao vivo (via vcmd + Popen),
+    para que cada '-> concluido:' apareca na hora, em vez de ficar bufferizada
+    ate o fim (o que fazia parecer travado).
+    """
     servidor, cliente = nodes["servidor"], nodes["cliente"]
-    ip_srv = ip_do_no(servidor, "10.0.0") or IP_SERVIDOR
+    ip_srv = ip_na_rede(servidor, "10.0.0.") or IP_SERVIDOR
 
     print(f"\n=== Experimento | tech={tech} | n={n} | servidor={ip_srv} ===")
 
     # compila (idempotente) e gera arquivos de teste
     ncmd(servidor, f"cd {PROJ} && make", shell=True, ignore_erro=True)
     ncmd(cliente, f"cd {PROJ} && make", shell=True, ignore_erro=True)
+    print("[gen] gerando arquivos de teste (100 KB e 10 MB)...")
     ncmd(cliente, f"cd {PROJ} && ./scripts/gen_files.sh testfiles",
          shell=True, ignore_erro=True)
+    print("[gen] ok.")
 
     # sobe o servidor em background no no servidor
     ncmd(servidor, "pkill -f 'bin/server'", shell=True, ignore_erro=True)
@@ -276,12 +310,15 @@ def rodar_experimento(nodes, tech, n):
          shell=True, ignore_erro=True, wait=False)
     time.sleep(1)
 
-    # roda o script de experimento a partir do no cliente
-    cmd = f"cd {PROJ} && ./scripts/run_experiment.sh {ip_srv} {PORT} {tech} {n}"
-    print(ncmd(cliente, cmd, shell=True, ignore_erro=True))
+    # roda o experimento a partir do no cliente, com saida ao vivo
+    cli_pref = _vcmd_prefix(session, cliente)
+    script = f"cd {PROJ} && ./scripts/run_experiment.sh {ip_srv} {PORT} {tech} {n}"
+    print("[exp] iniciando grid (voce vera '-> concluido:' por bloco)...\n")
+    rc = _stream(cli_pref + ["bash", "-c", script])
+    print(f"\n[exp] run_experiment.sh terminou (rc={rc})")
 
     ncmd(servidor, "pkill -f 'bin/server'", shell=True, ignore_erro=True)
-    print(f"\n[ok] CSV acumulado em {PROJ}/data/resultados.csv")
+    print(f"[ok] CSV acumulado em {PROJ}/data/resultados.csv")
 
 
 def main():
@@ -317,7 +354,7 @@ def main():
         if args.validar:
             validar_rede(nodes)
         if args.experimento:
-            rodar_experimento(nodes, args.tech, args.n)
+            rodar_experimento(session, nodes, args.tech, args.n)
         if args.manter or (not args.validar and not args.experimento):
             print("\nTopologia ativa. Use 'sudo docker exec -it core vcmd -c "
                   "<node> -- bash' em outro terminal. Ctrl+C para encerrar.")
