@@ -6,9 +6,25 @@ Este guia ajuda a **interpretar os gráficos** e estruturar a parte "Discussão 
 resultados obtidos" do vídeo-relatório. Para cada gráfico, explicamos **o que
 olhar**, **o que é esperado teoricamente** e **como explicar o fenômeno**.
 
-> ⚠️ Os valores numéricos citados abaixo são **referências/previsões**. Substitua
-> pelos números reais do seu `data/resumo.csv` depois de rodar o `analyze.py`.
-> Já temos os dados da FIBRA; o 4G confirma o contraste.
+> ✅ Os valores abaixo são os **resultados REAIS** coletados nos experimentos
+> (4G e Fibra, n=15). Fonte: `data/resumo.csv`.
+
+### Tabela-resumo dos resultados reais (tempo médio e vazão média por cliente)
+
+| Tec | Op | Arquivo | Conc | Tempo médio (s) | Vazão/cliente (Mbps) | Vazão agregada (Mbps) |
+|-----|----|---------|------|-----------------|----------------------|------------------------|
+| 4G | GET | 10 MB | 1 | 5,12 | 16,75 | 16,7 |
+| 4G | GET | 10 MB | 10 | 42,07 | 2,00 | ~20,0 |
+| 4G | GET | 10 MB | 50 | **214,32** | 0,39 | ~19,6 |
+| 4G | GET | 100 KB | 1 | 0,42 | 1,96 | — |
+| 4G | GET | 100 KB | 50 | 1,78 | 0,53 | — |
+| Fibra | GET | 10 MB | 1 | 1,56 | 55,48 | 55,5 |
+| Fibra | GET | 10 MB | 10 | 10,51 | 8,03 | ~80,3 |
+| Fibra | GET | 10 MB | 50 | 46,98 | 1,79 | ~89,5 |
+| Fibra | GET | 100 KB | 1 | 0,058 | 14,23 | — |
+| Fibra | GET | 100 KB | 50 | 0,31 | 3,08 | — |
+
+(GET e PUT deram valores praticamente simétricos — veja `resumo.csv` para todos.)
 
 ---
 
@@ -51,10 +67,12 @@ barras de erro (intervalo de confiança 95%). Uma curva por tecnologia-operaçã
 > Isso é mais evidente no arquivo de 10 MB (dominado por banda) do que no de
 > 100 KB (dominado por latência)."
 
-### Dado real da Fibra (já coletado — confira no seu CSV)
-- `media_10MB`, Fibra, conc=50: tempo ~**51-52 s** por cliente (vazão caiu p/ ~1.6 Mbps).
-- `media_10MB`, Fibra, conc=1: muito mais rápido (banda quase toda para 1 cliente).
-- → A diferença entre conc=1 e conc=50 **é a prova visual da saturação**.
+### Dados reais (confirmam a saturação de forma dramática)
+- **4G, media_10MB, GET:** conc=1 → **5,1 s**; conc=10 → **42 s**; conc=50 → **214 s**.
+  Ou seja, com 50 clientes a transferência fica ~42× mais lenta que com 1.
+- **Fibra, media_10MB, GET:** conc=1 → **1,56 s**; conc=50 → **47 s** (~30×).
+- → O salto brutal no tempo entre conc=1 e conc=50 **é a prova visual da
+  saturação** do enlace gargalo.
 
 ---
 
@@ -126,25 +144,40 @@ Eixo X = concorrência; eixo Y = vazão média **por cliente** (Mbps).
 > **gargalo**. O **ponto de saturação** é a concorrência a partir da qual o
 > enlace já está 100% ocupado e o sistema não entrega mais throughput agregado."
 
-### Conta de verificação (cite no vídeo — dá credibilidade)
-- Fibra, `media_10MB`, conc=50: vazão/cliente ~1.6 Mbps.
-  **50 × 1.6 ≈ 80 Mbps agregados** → coerente com os ~100 Mbps do gargalo
-  (menos o overhead de TCP e a latência). ✅
-- Faça a mesma conta com o 4G (deve se aproximar de ~20 Mbps agregados).
+### Conta de verificação REAL (cite no vídeo — dá muita credibilidade)
+A vazão agregada (vazão/cliente × nº de clientes) deve bater com a banda do gargalo:
+
+**4G (gargalo = 20 Mbps):**
+- conc=10: `10 × 2,00 = 20,0 Mbps` → **bate exatamente com os 20 Mbps!** ✅
+- conc=50: `50 × 0,39 = 19,6 Mbps` → **saturado no teto** ✅
+
+**Fibra (gargalo = 100 Mbps):**
+- conc=10: `10 × 8,03 = 80,3 Mbps`
+- conc=50: `50 × 1,79 = 89,5 Mbps` → aproxima-se dos 100 Mbps (menos overhead
+  de TCP e o efeito da latência) ✅
+
+> Essa coerência numérica prova que (a) a implementação está correta e (b) o
+> enlace gargalo emulado se comporta como o configurado. É o argumento mais
+> forte do trabalho.
 
 ---
 
 ## 5. Comparações que valem destacar no vídeo
 
-### 5.1 Fibra vs 4G
+### 5.1 Fibra vs 4G (com números reais)
 - Fibra: menor tempo e maior vazão em **todos** os cenários.
-- No **arquivo pequeno (100 KB)**, a vantagem da Fibra vem mais da **latência**
-  (5 ms vs 50 ms): menos RTT para estabelecer e completar.
-- No **arquivo grande (10 MB)**, a vantagem vem mais da **banda** (100 vs 20 Mbps).
+- **Arquivo pequeno (100 KB), conc=1:** 4G = 0,42 s vs Fibra = 0,058 s →
+  a Fibra é **~7× mais rápida**. Essa diferença é quase pura **latência**
+  (50 ms vs 5 ms), já que 100 KB nem chega a usar a banda.
+- **Arquivo grande (10 MB), conc=1:** 4G = 16,75 Mbps vs Fibra = 55,48 Mbps →
+  aqui a vantagem é a **banda** (20 vs 100 Mbps).
 
-### 5.2 Arquivo pequeno vs grande
-- 100 KB: tempos baixos, pouco sensíveis à concorrência (latência domina).
-- 10 MB: tempos altos, **muito** sensíveis à concorrência (banda domina e satura).
+### 5.2 Arquivo pequeno vs grande (com números reais)
+- **100 KB (4G):** conc=1 → 0,42 s; conc=50 → 1,78 s. Cresce só ~4× (latência
+  domina, pouco sensível à concorrência).
+- **10 MB (4G):** conc=1 → 5,1 s; conc=50 → 214 s. Cresce ~42× (banda domina e
+  **satura** fortemente sob concorrência).
+- → O arquivo grande é **muito** mais sensível à concorrência que o pequeno.
 
 ### 5.3 GET vs PUT
 - Geralmente simétricos em ordem de grandeza (mesmo volume de dados).
