@@ -20,17 +20,20 @@
     font-family:"Sora",system-ui,-apple-system,sans-serif;
     color:var(--fg); overflow:hidden; background:var(--bg0);
   }
-  /* fundo animado com blobs */
+  /* fundo escuro e sobrio + rede tematica discreta */
   .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:
-      radial-gradient(1200px 800px at 15% -10%, #16224a 0%, transparent 55%),
-      radial-gradient(1000px 700px at 110% 120%, #1a2b3f 0%, transparent 55%),
-      linear-gradient(160deg,#0a0e1a,#0d1324 60%,#0a0f1e);}
-  .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.28;animation:float 18s ease-in-out infinite}
-  .blob.a{width:520px;height:520px;background:#5aa9ff;top:-120px;left:-80px}
-  .blob.b{width:460px;height:460px;background:#9b6cff;bottom:-140px;right:-60px;animation-delay:-6s}
-  .blob.c{width:380px;height:380px;background:#4fe0bd;top:40%;left:55%;animation-delay:-11s}
-  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.08)}}
-  .grid-overlay{position:fixed;inset:0;z-index:0;opacity:.05;
+      radial-gradient(1400px 900px at 50% -20%, #121a30 0%, transparent 60%),
+      linear-gradient(160deg,#080b14 0%,#0b1020 55%,#080c17 100%);}
+  .netsvg{position:fixed;inset:0;z-index:0;width:100%;height:100%;opacity:.5;pointer-events:none}
+  .netsvg line{stroke:#2a3a5e;stroke-width:1}
+  .netsvg circle.n{fill:#1b2740;stroke:#2a3a5e;stroke-width:0}
+  .netsvg circle.hub{fill:#17223b;stroke:#2a3a5e;stroke-width:0}
+  /* pacotes que trafegam pelos enlaces */
+  .pkt{fill:#4fe0bd;opacity:.9;filter:drop-shadow(0 0 6px rgba(79,224,189,.8))}
+  .pkt2{fill:#5aa9ff;opacity:.9;filter:drop-shadow(0 0 6px rgba(90,169,255,.8))}
+  @keyframes dash{to{stroke-dashoffset:-240}}
+  .flow{stroke:#3a5a8c;stroke-width:1.5;stroke-dasharray:4 10;opacity:.35;animation:dash 6s linear infinite}
+  .grid-overlay{position:fixed;inset:0;z-index:0;opacity:.028;
     background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
     background-size:48px 48px}
 
@@ -105,7 +108,53 @@
 </style>
 </head>
 <body>
-<div class="bg"><span class="blob a"></span><span class="blob b"></span><span class="blob c"></span></div>
+<div class="bg"></div>
+<svg class="netsvg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <!-- enlaces estaticos -->
+  <g stroke="#22314f">
+    <line x1="140" y1="170" x2="420" y2="300"/>
+    <line x1="420" y1="300" x2="760" y2="180"/>
+    <line x1="760" y1="180" x2="1120" y2="320"/>
+    <line x1="1120" y1="320" x2="1460" y2="200"/>
+    <line x1="220" y1="640" x2="520" y2="560"/>
+    <line x1="520" y1="560" x2="860" y2="700"/>
+    <line x1="860" y1="700" x2="1200" y2="600"/>
+    <line x1="1200" y1="600" x2="1480" y2="720"/>
+    <line x1="420" y1="300" x2="520" y2="560"/>
+    <line x1="760" y1="180" x2="860" y2="700"/>
+    <line x1="1120" y1="320" x2="1200" y2="600"/>
+  </g>
+  <!-- enlace de nucleo com fluxo animado (gargalo) -->
+  <line class="flow" x1="520" y1="560" x2="860" y2="700"/>
+  <line class="flow" x1="760" y1="180" x2="1120" y2="320"/>
+  <line class="flow" x1="420" y1="300" x2="760" y2="180"/>
+  <!-- nos -->
+  <g>
+    <circle cx="140" cy="170" r="7" fill="#223a5e"/>
+    <circle cx="420" cy="300" r="10" fill="#1c2c4a"/>
+    <circle cx="760" cy="180" r="12" fill="#1c2c4a"/>
+    <circle cx="1120" cy="320" r="10" fill="#1c2c4a"/>
+    <circle cx="1460" cy="200" r="7" fill="#223a5e"/>
+    <circle cx="220" cy="640" r="7" fill="#223a5e"/>
+    <circle cx="520" cy="560" r="12" fill="#1c2c4a"/>
+    <circle cx="860" cy="700" r="12" fill="#1c2c4a"/>
+    <circle cx="1200" cy="600" r="10" fill="#1c2c4a"/>
+    <circle cx="1480" cy="720" r="7" fill="#223a5e"/>
+  </g>
+  <!-- pacotes trafegando -->
+  <circle class="pkt" r="4">
+    <animateMotion dur="5s" repeatCount="indefinite" path="M420,300 L760,180 L1120,320"/>
+  </circle>
+  <circle class="pkt2" r="4">
+    <animateMotion dur="6.5s" repeatCount="indefinite" path="M860,700 L520,560 L420,300"/>
+  </circle>
+  <circle class="pkt" r="4">
+    <animateMotion dur="7s" repeatCount="indefinite" begin="1s" path="M1200,600 L860,700 L520,560"/>
+  </circle>
+  <circle class="pkt2" r="4">
+    <animateMotion dur="5.5s" repeatCount="indefinite" begin="2s" path="M140,170 L420,300 L760,180"/>
+  </circle>
+</svg>
 <div class="grid-overlay"></div>
 <div class="progress" id="prog"></div>
 <div id="deck">
