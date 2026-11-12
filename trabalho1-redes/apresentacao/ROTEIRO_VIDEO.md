@@ -149,12 +149,11 @@ para o seu jeito, não decore palavra por palavra.
 ## Bloco 7 — Contribuições e autoavaliação · ~0:40
 
 ### Slide 17 (contribuições) · 0:25
-> _"Sobre as contribuições, embora todas as decisões tenham sido tomadas em
-> grupo, cada um teve um foco: [Integrante 1] cuidou do planejamento do
-> protocolo e da implementação do servidor; [Integrante 2], do cliente com
-> telemetria e da montagem do ambiente CORE e dos scripts; e [Integrante 3], da
-> execução dos experimentos, da análise estatística, dos gráficos e da
-> documentação."_
+> _"Sobre as contribuições, embora as decisões tenham sido tomadas em grupo,
+> cada um teve um foco: o Pedro Henrique cuidou do protocolo e da implementação
+> do servidor em C; o Lucas, do cliente com telemetria e da análise estatística
+> com os gráficos; e o Henrique, da montagem do ambiente CORE e da execução dos
+> experimentos de ponta a ponta, além da documentação."_
 
 ### Slide 18 (autoavaliação) · 0:15
 > _"Na autoavaliação, consideramos que atendemos a todos os requisitos, com

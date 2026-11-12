@@ -8,7 +8,7 @@
 
 ## Divisão de atividades (ciclo completo)
 
-### [Integrante 1]
+### Pedro Henrique Novello D'Elia Porto de Almeida — Aplicação (servidor)
 - **Planejamento:** definição do protocolo (inspirado em HTTP) e dos códigos de
   status; estrutura de arquivos do projeto.
 - **Implementação — servidor:** `server.c` (modelo thread-por-cliente com
@@ -16,21 +16,27 @@
   proteção contra path traversal.
 - **Implementação — comum:** `common.c` (`send_all`/`recv_all`/`recv_file`).
 
-### [Integrante 2]
+### Lucas Alves Gazale — Aplicação (cliente) e análise
 - **Implementação — cliente:** `client.c` (GET/PUT, medição de tempo com
   `CLOCK_MONOTONIC`, telemetria em CSV).
-- **Ambiente experimental:** montagem da VM (Vagrant/VirtualBox), Docker e
-  imagem do CORE; topologia em `topologia_core.py` (acesso + núcleo + gargalo).
-- **Validação:** scripts `gen_files.sh` e `run_experiment.sh`; verificação de
-  consistência com ping/traceroute/iperf.
-
-### [Integrante 3]
-- **Execução dos experimentos:** rodadas 4G e Fibra (n=15 por configuração),
-  coleta dos CSVs, controle de disco/recursos.
 - **Análise:** `analyze.py` (estatística descritiva + intervalo de confiança) e
   geração dos gráficos (tempo, vazão, boxplot, CDF).
-- **Comunicação:** documentação (`RELATORIO.md`, `GUIA_DISCUSSAO.md`), slides da
-  apresentação e edição/roteiro do vídeo.
+- **Comunicação:** slides da apresentação.
+
+### Henrique Rodrigues Ribeiro — Ambiente e experimentos
+- **Ambiente experimental:** montagem da VM (Vagrant/VirtualBox), Docker e
+  imagem do CORE; topologia em `topologia_core.py` (acesso + núcleo + gargalo).
+- **Execução e validação:** scripts `gen_files.sh` e `run_experiment.sh`;
+  rodadas 4G e Fibra (n=15 por configuração), coleta dos CSVs; verificação de
+  consistência com ping/traceroute/iperf.
+- **Comunicação:** documentação (`RELATORIO.md`, `GUIA_DISCUSSAO.md`) e roteiro
+  do vídeo.
+
+> A lógica da divisão: **dois integrantes na aplicação em C** (um no servidor,
+> outro no cliente) e **um responsável pelo ambiente/experimentos de ponta a
+> ponta** — quem montou o CORE é quem rodou os testes nele. A análise/gráficos e
+> a documentação foram distribuídas entre os dois que tiveram frentes mais
+> curtas de código, equilibrando a carga.
 
 > **Observação importante:** embora cada integrante tenha tido um **foco
 > principal**, todas as decisões de projeto (protocolo, fatores experimentais,
