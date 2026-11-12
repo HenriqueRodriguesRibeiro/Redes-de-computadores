@@ -360,16 +360,61 @@
     </ul>
   </section>
 
-  <!-- 13 ENCERRAMENTO -->
+  <!-- 13 CONTRIBUICOES -->
+  <section class="slide">
+    <h2>Contribui&ccedil;&otilde;es de cada integrante</h2>
+    <div class="grid2" style="grid-template-columns:1fr 1fr 1fr;gap:1.2rem">
+      <div class="card">
+        <h3>&#128100; [Integrante 1]</h3>
+        <ul style="font-size:1.15rem">
+          <li>Planejamento e protocolo</li>
+          <li>Implementa&ccedil;&atilde;o do <b>servidor</b> em C (pthread, GET/PUT)</li>
+          <li>Tratamento de erros e c&oacute;digos de status</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>&#128100; [Integrante 2]</h3>
+        <ul style="font-size:1.15rem">
+          <li>Implementa&ccedil;&atilde;o do <b>cliente</b> e telemetria</li>
+          <li>Ambiente CORE (VM, Docker, topologia)</li>
+          <li>Scripts de experimento e valida&ccedil;&atilde;o</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>&#128100; [Integrante 3]</h3>
+        <ul style="font-size:1.15rem">
+          <li>Execu&ccedil;&atilde;o dos experimentos (4G e Fibra)</li>
+          <li><b>An&aacute;lise</b> estat&iacute;stica e gr&aacute;ficos</li>
+          <li>Documenta&ccedil;&atilde;o, slides e v&iacute;deo</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">Observa&ccedil;&atilde;o: todos participaram das decis&otilde;es de projeto e da
+      interpreta&ccedil;&atilde;o dos resultados; as tarefas acima indicam o <b>foco principal</b> de cada um.</p>
+  </section>
+
+  <!-- 14 AUTOAVALIACAO -->
   <section class="slide center">
-    <h2 style="justify-content:center">Contribui&ccedil;&otilde;es &amp; Autoavalia&ccedil;&atilde;o</h2>
-    <p class="sub">[Integrante 1] &mdash; ...<br>[Integrante 2] &mdash; ...<br>[Integrante 3] &mdash; ...</p>
-    <p class="note" style="margin-top:2rem">Autoavalia&ccedil;&atilde;o do grupo: [preencher]</p>
-    <div style="margin-top:2.2rem" class="tag">&#10024; Obrigado!</div>
+    <h2 style="justify-content:center">Autoavalia&ccedil;&atilde;o do grupo</h2>
+    <div class="card" style="max-width:62rem;text-align:left">
+      <ul style="font-size:1.3rem">
+        <li>Atendemos a <b>todos os requisitos</b>: app C com GET/PUT, servidor
+            concorrente, topologia com gargalo, valida&ccedil;&atilde;o e an&aacute;lise.</li>
+        <li>Os resultados foram <b>coerentes</b> (vaz&atilde;o agregada &asymp; banda; RTT &asymp;
+            2&times; o atraso), o que nos deu confian&ccedil;a na implementa&ccedil;&atilde;o.</li>
+        <li>Maior desafio: montar o ambiente CORE numa VM headless &mdash; resolvido com
+            automa&ccedil;&atilde;o via script Python.</li>
+        <li>Aprendizado central: como <b>lat&ecirc;ncia</b> e <b>banda</b> dominam regimes
+            diferentes, e o efeito da <b>satura&ccedil;&atilde;o</b> sob concorr&ecirc;ncia.</li>
+      </ul>
+      <p class="note" style="margin-top:1rem">Nota que o grupo atribui ao pr&oacute;prio
+        trabalho: <b>[preencher, ex.: 9,5/10]</b>.</p>
+    </div>
+    <div style="margin-top:1.8rem" class="tag">&#10024; Obrigado!</div>
   </section>
 
 </div>
-<div class="counter" id="counter">01 / 17</div>
+<div class="counter" id="counter">01 / 18</div>
 <div class="brand">Redes de Computadores &middot; ICT/UNIFESP</div>
 <div class="hint">&larr; &rarr; ou Espa&ccedil;o &middot; F = tela cheia</div>
 <script>

@@ -21,7 +21,7 @@ para o seu jeito, não decore palavra por palavra.
 | 4. Resultados (tabela + prova) | 8–9 | 1:30 | 5:45 |
 | 5. Gráficos (discussão) | 10–14 | 2:15 | 8:00 |
 | 6. Comparação + conclusões | 15–16 | 0:50 | 8:50 |
-| 7. Contribuições/autoavaliação | 17 | 0:40 | 9:30 |
+| 7. Contribuições/autoavaliação | 17–18 | 0:40 | 9:30 |
 
 ---
 
@@ -148,11 +148,19 @@ para o seu jeito, não decore palavra por palavra.
 
 ## Bloco 7 — Contribuições e autoavaliação · ~0:40
 
-### Slide 17 (encerramento) · 0:40
-> _"Sobre as contribuições: [Integrante 1] ficou responsável por ...;
-> [Integrante 2] por ...; [Integrante 3] por ... . Na autoavaliação, o grupo
-> considera que [preencher: ex.: o trabalho atendeu a todos os requisitos, os
-> resultados foram coerentes, e o maior aprendizado foi ...]. Obrigado!"_
+### Slide 17 (contribuições) · 0:25
+> _"Sobre as contribuições, embora todas as decisões tenham sido tomadas em
+> grupo, cada um teve um foco: [Integrante 1] cuidou do planejamento do
+> protocolo e da implementação do servidor; [Integrante 2], do cliente com
+> telemetria e da montagem do ambiente CORE e dos scripts; e [Integrante 3], da
+> execução dos experimentos, da análise estatística, dos gráficos e da
+> documentação."_
+
+### Slide 18 (autoavaliação) · 0:15
+> _"Na autoavaliação, consideramos que atendemos a todos os requisitos, com
+> resultados coerentes. O maior desafio foi o ambiente headless, resolvido com
+> automação; e o principal aprendizado foi ver, na prática, latência e banda
+> dominando regimes diferentes, além da saturação sob concorrência. Obrigado!"_
 
 ---
 
