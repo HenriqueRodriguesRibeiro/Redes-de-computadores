@@ -78,6 +78,17 @@ def main(csv_path):
     ax.set_title("Vazao x concorrencia"); ax.legend()
     fig.savefig("data/vazao_concorrencia.png", dpi=120, bbox_inches="tight")
 
+    # vazao por arquivo (separado), com rotulo de unidade CORRETO (Mbps)
+    for arq in resumo["arquivo"].unique():
+        sub = resumo[resumo["arquivo"] == arq]
+        fig, ax = plt.subplots()
+        for (tec, oper), g in sub.groupby(["tecnologia", "operacao"]):
+            ax.plot(g["concorrencia"], g["vazao_media"], marker="s", label=f"{tec}-{oper}")
+        ax.set_xlabel("Clientes concorrentes")
+        ax.set_ylabel("Vazao media (Mbps)")   # Mbps = megabits/s (nao MB/s!)
+        ax.set_title(f"Vazao media - {arq}"); ax.legend()
+        fig.savefig(f"data/vazao_{arq}.png", dpi=120, bbox_inches="tight")
+
     print("Analise concluida. Veja PNGs e resumo.csv em data/.")
 
 
