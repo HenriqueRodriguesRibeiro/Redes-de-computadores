@@ -28,7 +28,8 @@ para o seu jeito, não decore palavra por palavra.
 ## Bloco 1 — Abertura e motivação · ~1:00
 
 ### Slide 1 (capa) · 0:15
-> _"Olá, somos o grupo [nomes]. Este é o Trabalho 1 de Redes de Computadores:
+> _"Olá, somos o grupo formado por Henrique, Lucas e Pedro Henrique. Este é o
+> Trabalho 1 de Redes de Computadores:
 > avaliação de desempenho de uma aplicação cliente-servidor de arquivos,
 > implementada em C e testada numa rede emulada no CORE."_
 
