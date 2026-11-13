@@ -71,11 +71,13 @@
 
   table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:1.25rem;
     background:var(--card);border-radius:14px;overflow:hidden;backdrop-filter:blur(8px)}
-  th,td{padding:.75rem 1rem;text-align:left;border-bottom:1px solid var(--line)}
+  th,td{padding:.75rem 1rem;text-align:center;border-bottom:1px solid var(--line);
+    border-right:1px solid var(--line)}
+  th:last-child,td:last-child{border-right:none}
   thead th,tr:first-child th{background:rgba(90,169,255,.14);color:#cfe4ff;font-weight:700;
-    text-transform:uppercase;font-size:.95rem;letter-spacing:.5px}
+    text-transform:uppercase;font-size:.95rem;letter-spacing:.5px;text-align:center}
   tbody tr:hover,tr:hover{background:rgba(255,255,255,.03)}
-  td.num{font-family:"JetBrains Mono",monospace;text-align:right}
+  td.num{font-family:"JetBrains Mono",monospace;text-align:center}
 
   .big{font-size:2.8rem;font-weight:800;margin:.4rem 0;
     background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
