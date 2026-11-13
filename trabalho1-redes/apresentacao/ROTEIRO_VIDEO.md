@@ -19,9 +19,9 @@ para o seu jeito, não decore palavra por palavra.
 | 2. O que / Como | 3–5 | 2:00 | 3:00 |
 | 3. Por que (fatores) + conceito | 6–7 | 1:15 | 4:15 |
 | 4. Resultados (tabela + prova) | 8–9 | 1:30 | 5:45 |
-| 5. Gráficos (discussão) | 10–14 | 2:15 | 8:00 |
-| 6. Comparação + conclusões | 15–16 | 0:50 | 8:50 |
-| 7. Contribuições/autoavaliação | 17–18 | 0:40 | 9:30 |
+| 5. Gráficos (discussão) | 10–13 | 2:15 | 8:00 |
+| 6. Comparação + conclusões | 14–15 | 0:50 | 8:50 |
+| 7. Contribuições/autoavaliação | 16–17 | 0:40 | 9:30 |
 
 ---
 
@@ -101,31 +101,31 @@ para o seu jeito, não decore palavra por palavra.
 
 ## Bloco 5 — Gráficos (a discussão principal) · ~2:15
 
-> 💡 Aqui aponte os elementos nos gráficos com o cursor.
+> 💡 Aqui aponte os elementos nos gráficos com o cursor. Os dois primeiros slides
+> mostram **10 MB e 100 KB lado a lado** — use o contraste para explicar
+> "banda vs latência".
 
-### Slide 10 (tempo × concorrência, 10 MB) · 0:30
-> _"Este gráfico mostra o tempo de resposta do arquivo de 10 MB. Veja como as
-> curvas do 4G disparam com a concorrência, chegando aos 214 segundos, enquanto
-> a Fibra se mantém bem abaixo. É a saturação em forma visual."_
+### Slide 10 (TEMPO: 10 MB vs 100 KB) · 0:40
+> _"Aqui comparamos o tempo de resposta nos dois tamanhos. No arquivo de 10 MB,
+> à esquerda, as curvas do 4G disparam com a concorrência, até 214 segundos — é
+> a banda saturando. Já no de 100 KB, à direita, os tempos são muito baixos e
+> pouco sensíveis à concorrência: aqui quem manda é a latência, por isso a Fibra
+> fica bem abaixo do 4G."_
 
-### Slide 11 (vazão × concorrência, 10 MB) · 0:30
-> _"Aqui, a vazão por cliente. Com 1 cliente ela é alta; conforme adicionamos
-> clientes, despenca — porque a banda fixa é dividida entre todos. É o gráfico
-> que identifica o ponto de saturação: além dele, mais clientes só repartem a
-> banda mais fino."_
+### Slide 11 (VAZÃO em Mbps: 10 MB vs 100 KB) · 0:45
+> _"A vazão, agora em Mbps. No 10 MB, a vazão por cliente despenca e a soma
+> satura no teto da banda do gargalo. No 100 KB, a Fibra chega a mais de 100
+> Mbps com um cliente — mostrando que, para arquivos pequenos, a banda nem é o
+> limite; o que pesa é a latência. É o gráfico que identifica o ponto de
+> saturação."_
 
-### Slide 12 (tempo × concorrência, 100 KB) · 0:30
-> _"Já o arquivo de 100 KB se comporta diferente: os tempos são baixos e pouco
-> sensíveis à concorrência. Aqui a latência domina — por isso a Fibra, com 5 ms,
-> é cerca de 7 vezes mais rápida que o 4G, de 50 ms, mesmo sem gargalo de banda."_
-
-### Slide 13 (CDF) · 0:30
+### Slide 12 (CDF) · 0:30
 > _"A CDF mostra a distribuição acumulada dos tempos. As curvas da Fibra ficam
 > à esquerda — transferências rápidas; o 4G tem uma cauda longa até 214
 > segundos. Com ela conseguimos ler percentis, como o p95, útil para garantias
 > de qualidade de serviço."_
 
-### Slide 14 (variabilidade/boxplot) · 0:15
+### Slide 13 (variabilidade) · 0:20
 > _"E a variabilidade: sob alta concorrência a dispersão aumenta, porque o
 > escalonamento faz alguns clientes terminarem antes de outros."_
 
