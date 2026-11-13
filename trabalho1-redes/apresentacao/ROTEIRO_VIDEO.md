@@ -133,11 +133,11 @@ para o seu jeito, não decore palavra por palavra.
 
 ## Bloco 6 — Comparação e conclusões · ~0:50
 
-### Slide 15 (Fibra vs 4G) · 0:20
+### Slide 14 (Fibra vs 4G) · 0:20
 > _"Resumindo a comparação: no arquivo pequeno, a vantagem da Fibra vem da
 > latência; no grande, vem da banda. Cada fator pesa num regime diferente."_
 
-### Slide 16 (conclusões) · 0:30
+### Slide 15 (conclusões) · 0:30
 > _"Concluindo: a banda do gargalo limita os arquivos grandes sob concorrência,
 > e o sistema satura no teto configurado. A latência domina os arquivos
 > pequenos. O modelo thread-por-cliente cumpriu o requisito de concorrência. E
@@ -148,14 +148,14 @@ para o seu jeito, não decore palavra por palavra.
 
 ## Bloco 7 — Contribuições e autoavaliação · ~0:40
 
-### Slide 17 (contribuições) · 0:25
+### Slide 16 (contribuições) · 0:25
 > _"Sobre as contribuições, embora as decisões tenham sido tomadas em grupo,
 > cada um teve um foco: o Pedro Henrique cuidou do protocolo e da implementação
 > do servidor em C; o Lucas, do cliente com telemetria e da análise estatística
 > com os gráficos; e o Henrique, da montagem do ambiente CORE e da execução dos
 > experimentos de ponta a ponta, além da documentação."_
 
-### Slide 18 (autoavaliação) · 0:15
+### Slide 17 (autoavaliação) · 0:15
 > _"Na autoavaliação, consideramos que atendemos a todos os requisitos, com
 > resultados coerentes. O maior desafio foi o ambiente headless, resolvido com
 > automação; e o principal aprendizado foi ver, na prática, latência e banda
@@ -172,13 +172,13 @@ para o seu jeito, não decore palavra por palavra.
 - **Compartilhar a tela** com os slides em tela cheia; nos gráficos, mover o
   cursor para guiar o olhar.
 - **Não ler o slide** — o slide é apoio; fale com suas palavras.
-- Deixe o slide 1 e o 17 com os **nomes e as contribuições preenchidos** antes
+- Deixe o slide 1 e o 16 com os **nomes e as contribuições preenchidos** antes
   de gravar.
 - Áudio limpo importa mais que vídeo perfeito — grave num ambiente silencioso.
 
 ## Checklist final antes de enviar
 
-- [ ] Slides 1 e 17 preenchidos (nomes, contribuições, autoavaliação)
+- [ ] Slides 1 e 16 preenchidos (nomes, contribuições, autoavaliação)
 - [ ] Vídeo com até 10 min
 - [ ] Vídeo subido na nuvem (Drive/YouTube não listado) e **link** testado
 - [ ] Entregar no classroom: **código do servidor** + **link do vídeo**
